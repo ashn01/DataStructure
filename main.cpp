@@ -1,5 +1,6 @@
 #include <iostream>
 #include "LinkedList.h"
+#include "DoublyLinkedList.h"
 
 #include <list>
 #include <iterator>
@@ -115,7 +116,19 @@ int main()
 {
 	LinkedList<int> l;
 
-	int result = slistTest(&l);
+	int result = 0;
+	//slistTest(&l);
+
+	DoublyLinkedList<int> dl;
+	dl.push_front(13);
+	dl.push_front(14);
+	dl.push_front(15);
+	dl.push_front(16);
+	auto a = dl.begin();
+	auto b = dl.insert(a, 21);
+	auto c = dl.insert(b, 22);
+
+	dl.insert(c,c,a);
 
 	switch (result)
 	{
