@@ -112,6 +112,11 @@ int slistTest(LinkedList<int> *l)
 	return 0;
 }
 
+bool func(const int& v)
+{
+	return v > 5;
+}
+
 int main()
 {
 	LinkedList<int> l;
@@ -129,6 +134,24 @@ int main()
 	auto c = dl.insert(b, 22);
 
 	dl.insert(c,c,a);
+
+	DoublyLinkedList<int> dl2 = dl;
+
+	dl2.clear();
+
+	dl2 = dl;
+
+	dl = dl2;
+
+
+	DoublyLinkedList<int> dl3 = dl + dl2;
+
+	for (auto at : dl3)
+		cout << at << endl;
+
+	dl3.swap(dl);
+
+	dl3.remove_if(func);
 
 	switch (result)
 	{

@@ -1,13 +1,16 @@
 #pragma once
+#define DEBUGMODE true
 #include "list.h"
 #include <iostream>
+
+using namespace std;
 
 template <typename T>
 class DoublyLinkedList:
 	public list{
 
 	struct node {
-		node(T& t) :data(t), next(nullptr), prev(nullptr) { };
+		node(const T& t) :data(t), next(nullptr), prev(nullptr) { };
 		node():next(nullptr),prev(nullptr) {};
 		T data;
 		node* next;
@@ -34,6 +37,11 @@ class DoublyLinkedList:
 		newNode->prev->next = newNode;
 		newNode->next->prev = newNode;
 		++s;
+	}
+	void copyNode(node* n)
+	{
+		node* newNode = new node(n->data);
+		addNode(newNode, this->tail->prev, this->tail);
 	}
 
 public:
@@ -84,7 +92,7 @@ public:
 		return ++iterator(head);
 	}
 	iterator end() {
-		return --iterator(tail);
+		return iterator(tail);
 	}
 
 	DoublyLinkedList()
@@ -103,6 +111,18 @@ public:
 
 		if(s != 0)
 			std::cout << "there may be memory leak : " << s << std::endl;
+	}
+
+	DoublyLinkedList(const DoublyLinkedList& rhs)
+	{
+		if (DEBUGMODE)
+			cout << "copy construct called" << endl;
+		// sentinel
+		this->head = new node();
+		this->tail = new node();
+		head->next = this->tail;
+		tail->prev = this->head;
+		*this = rhs;
 	}
 
 	T& front()
@@ -160,6 +180,8 @@ public:
 			deleteNode(cur);
 			cur = next;
 		}
+		this->head->next = this->tail;
+		this->tail->prev = this->head;
 	}
 	void empty()
 	{
@@ -174,7 +196,7 @@ public:
 		return n;
 	}
 
-	iterator insert(const iterator& it, const T& data) // O(n) rvalue
+	iterator insert(const iterator& it, const T& data) // O(n)
 	{
 		node* cur = it.getNode();
 		node* n = new node(data);
@@ -220,7 +242,7 @@ public:
 		node* next = position.getNode()->next;
 		deleteNode(position.getNode(), prev, next);
 
-		return prev == this->head ? iterator(nullptr) : prev;
+		return next;
 	}
 
 	iterator remove(const iterator& first, const iterator& last)
@@ -240,7 +262,7 @@ public:
 		start->next = end;
 		end->prev = start;
 
-		return end == this->tail ? iterator(nullptr) : end;
+		return end;
 	}
 
 	void remove(const T& data)
@@ -257,4 +279,74 @@ public:
 			cur = cur->next;
 		}
 	}
+
+	void remove_if(bool (&func)(const T&))
+	{
+		auto it = this->begin();
+		while (it != this->end())
+		{
+			if (func(*it))
+				it = remove(it);
+		}
+	}
+
+	DoublyLinkedList<T>& operator=(const DoublyLinkedList<T>& rhs)
+	{
+		if (this->s != 0)
+			this->clear();
+		node* temp = rhs.head->next;
+		while (temp != rhs.tail)
+		{
+			copyNode(temp);
+			temp = temp->next;
+		}
+
+		return *this;
+	}
+
+	DoublyLinkedList<T>& operator=(DoublyLinkedList&& rhs)
+	{
+		return *this = rhs;
+	}
+
+	const DoublyLinkedList<T> operator+(const DoublyLinkedList<T>& rhs)
+	{
+		return DoublyLinkedList<T>(*this) += rhs;
+	}
+
+	DoublyLinkedList<T>& operator+=(const DoublyLinkedList<T>& rhs)
+	{
+		node* n = rhs.head->next;
+		while (n != rhs.tail)
+		{
+			push_back(n->data);
+			n = n->next;
+		}
+
+		return *this;
+	}
+
+	void swap(DoublyLinkedList<T>& rhs)
+	{
+		node* tHead, * tTail;
+		int size = this->s;
+
+		tHead = this->head->next;
+		tTail = this->tail->prev;
+
+		this->head->next = rhs.head->next;
+		this->head->next->prev = this->head;
+		this->tail->prev = rhs.tail->prev;
+		this->tail->prev->next = this->tail;
+		this->s = rhs.s;
+
+		rhs.head->next = tHead;
+		tHead->prev = rhs.head;
+		rhs.tail->prev = tTail;
+		tTail->next = rhs.tail;
+		rhs.s = size;
+
+	}
+
+
 };
