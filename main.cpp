@@ -5,7 +5,11 @@
 #include <list>
 #include <iterator>
 
+#include <vector>
+
 using namespace std;
+
+enum {SUCESS = 0, FAILCLEAR, FAILPUSH, FAILPOP, FAILINSERT, FAILREMOVE};
 
 int slistTest(LinkedList<int> *l)
 {
@@ -115,6 +119,109 @@ int slistTest(LinkedList<int> *l)
 bool func(const int& v)
 {
 	return v > 5;
+}
+
+int dlistTest(DoublyLinkedList<int>& dl)
+{
+	// initializing test
+	int* testValues;
+	int length = 100;
+	testValues = new int[length];
+	for (int i = 0; i < length; ++i)
+		testValues[i] = i;
+
+	DoublyLinkedList<int>::iterator globalIterator; // global iterator. initialize before use it
+
+	// test begin
+	{ 
+		// test push_front
+		for(int i=0;i<length;++i)
+			dl.push_front(i);
+		
+		globalIterator = dl.end();
+		for (int i = 0; i < length; ++i)
+		{
+			if (testValues[i] != *globalIterator)
+				return FAILPUSH;
+			--globalIterator;
+		}
+
+		// test pop_front
+		for (int i = 0; i < length / 2; i++)
+		{
+			if (dl.front() != testValues[i])
+				return FAILPOP;
+			dl.pop_front();
+		}
+
+		// test pop_back
+		for (int i = 0; i < length / 2; i++)
+		{
+			if (dl.back() != testValues[length - i])
+				return FAILPOP;
+			dl.pop_back();
+		}
+
+		
+		// test push_back
+		for (int i = 0; i < length; ++i)
+			dl.push_back(i);
+
+		globalIterator = dl.begin();
+		for (int i = 0; i < length; ++i)
+		{
+			if (testValues[i] != *globalIterator)
+				return FAILPUSH;
+			++globalIterator;
+		}
+
+		// test clear
+		dl.clear();
+		if (dl.size() != 0)
+			return FAILCLEAR;
+
+		// test insert front with no data in it
+		for (int i = 0; i < length; i++)
+			dl.insert(dl.begin(), testValues[i]);
+
+		globalIterator = dl.end();
+		for (int i = 0; i < length; i++)
+		{
+			if (*globalIterator != testValues[i])
+				return FAILINSERT;
+			--globalIterator;
+		}
+
+		// test clear
+		dl.clear();
+		if (dl.size() != 0)
+			return FAILCLEAR;
+
+		// test insert next with no data in it
+		dl.push_front(testValues[0]);
+		globalIterator = dl.begin();
+		for (int i = 1; i < length; i++)
+			dl.insert(globalIterator++, testValues[i]);
+
+		globalIterator = dl.begin();
+		for (int i = 0; i < length; i++)
+		{
+			if (*globalIterator != testValues[i])
+				return FAILINSERT;
+			++globalIterator;
+		}
+
+		// test remove between iterator
+		dl.remove(dl.begin(), dl.end());
+		if (dl.size() != 1)
+			return FAILREMOVE;
+
+	
+	}
+
+	delete testValues;
+
+	return SUCESS;
 }
 
 int main()

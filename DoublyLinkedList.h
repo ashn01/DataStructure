@@ -127,12 +127,12 @@ public:
 
 	T& front()
 	{
-		return this->head->next->getNode()->data;
+		return this->head->next->data;
 	}
 
 	T& back()
 	{
-		return this->tail->prev->getNode()->data;
+		return this->tail->prev->data;
 	}
 
 	void push_front(const T& data)
